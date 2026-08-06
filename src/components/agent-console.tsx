@@ -1,23 +1,21 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AgentLog } from "@/lib/types";
 
 function LogEntry({ log }: { log: AgentLog }) {
   if (log.type === "thought") {
     return (
-      <div className="bg-purple-950/20 border border-purple-500/20 rounded-lg p-3 space-y-2">
-        <div className="flex items-center justify-between text-purple-400 font-semibold border-b border-purple-500/10 pb-1 text-[10px]">
-          <span className="flex items-center">
-            <span className="mr-1">🧠</span> AGENT THOUGHT (Step {log.step})
-          </span>
-          <span>{log.timestamp}</span>
+      <div className="bg-[var(--secondary)] border-l-2 border-[var(--primary)] rounded-r-md p-3 space-y-2">
+        <div className="flex items-center justify-between text-[var(--primary)] font-semibold border-b border-[var(--border)] pb-1 text-[11px] tracking-wide">
+          <span>AGENT THOUGHT · STEP {log.step}</span>
+          <span className="text-[var(--muted-foreground)]">{log.timestamp}</span>
         </div>
-        <p className="text-purple-100/90 leading-relaxed text-[11px] font-sans italic">
+        <p className="text-[var(--foreground)] leading-relaxed text-[12px] font-sans italic">
           &quot;{log.thought}&quot;
         </p>
-        <div className="text-[10px] text-indigo-300 font-mono mt-1 pt-1 border-t border-purple-500/5">
-          <span className="text-zinc-500">Next Action:</span> {log.action}(
+        <div className="text-[11px] text-[#a84e35] mt-1 pt-1 border-t border-[var(--border)]">
+          <span className="text-[var(--muted-foreground)]">next_action:</span> {log.action}(
           {JSON.stringify(log.parameters)})
         </div>
       </div>
@@ -26,10 +24,8 @@ function LogEntry({ log }: { log: AgentLog }) {
 
   if (log.type === "business_saved") {
     return (
-      <div className="bg-emerald-950/20 border border-emerald-500/20 rounded-lg p-3 text-[11px] text-emerald-200">
-        <div className="font-semibold text-emerald-400 flex items-center mb-1">
-          <span className="mr-1">🎉</span> DATABASE STORAGE TRIGGERED
-        </div>
+      <div className="bg-[var(--secondary)] border-l-2 border-emerald-600 rounded-r-md p-3 text-[12px] text-[var(--foreground)]">
+        <div className="font-semibold text-emerald-700 mb-1 text-[11px] tracking-wide">SAVED</div>
         {log.message}
       </div>
     );
@@ -37,23 +33,23 @@ function LogEntry({ log }: { log: AgentLog }) {
 
   if (log.type === "error") {
     return (
-      <div className="text-rose-400 bg-rose-950/20 border border-rose-500/20 rounded-lg p-2.5">
-        <span className="font-semibold">❌ ERROR:</span> {log.message}
+      <div className="bg-[var(--secondary)] border-l-2 border-[var(--destructive)] rounded-r-md p-3 text-[12px] text-[#8f3323]">
+        <span className="font-semibold text-[var(--destructive)]">ERROR</span> — {log.message}
       </div>
     );
   }
 
   if (log.type === "complete") {
     return (
-      <div className="text-purple-300 bg-purple-600/10 border border-purple-500/30 rounded-lg p-3 text-center font-semibold">
-        🏆 {log.message}
+      <div className="bg-[var(--secondary)] border-l-2 border-[var(--primary)] rounded-r-md p-3 text-center font-semibold text-[12px] text-[var(--primary)]">
+        {log.message}
       </div>
     );
   }
 
   return (
-    <div className="text-zinc-400 flex items-start space-x-2 text-[11px]">
-      <span className="text-zinc-600">[{log.timestamp}]</span>
+    <div className="text-[var(--muted-foreground)] flex items-start space-x-2 text-[12px]">
+      <span className="text-[var(--muted-foreground)]/70">[{log.timestamp}]</span>
       <span className="flex-1 leading-normal">{log.message}</span>
     </div>
   );
@@ -67,51 +63,58 @@ export function AgentConsole({
   searching: boolean;
 }) {
   const consoleEndRef = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState(false);
+
+  // A fresh run always surfaces the console, even if the user collapsed the last one.
+  // Adjusting state during render (React's documented pattern for this) avoids an extra effect-triggered render.
+  const [prevSearching, setPrevSearching] = useState(searching);
+  if (searching !== prevSearching) {
+    setPrevSearching(searching);
+    if (searching) setCollapsed(false);
+  }
 
   useEffect(() => {
     consoleEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [logs]);
+  }, [logs, collapsed]);
 
   return (
-    <div className="flex-1 glass-panel rounded-2xl border-zinc-800/80 overflow-hidden flex flex-col scanline relative">
-      <div className="bg-zinc-950 px-4 py-2 border-b border-zinc-900 flex items-center justify-between text-xs text-zinc-500 font-mono">
-        <div className="flex items-center space-x-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-500/70" />
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500/70" />
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
-          <span className="ml-2 font-semibold">agent_console.log</span>
+    <div className="glass-panel rounded-xl overflow-hidden flex flex-col">
+      <button
+        type="button"
+        onClick={() => setCollapsed((c) => !c)}
+        className="bg-[var(--secondary)] px-4 py-2 border-b border-[var(--border)] flex items-center justify-between text-xs text-[var(--muted-foreground)] font-mono w-full cursor-pointer"
+        aria-expanded={!collapsed}
+      >
+        <span className="font-semibold text-[var(--foreground)]">agent_console.log</span>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5">
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${searching ? "bg-emerald-600" : "bg-[var(--muted-foreground)]/50"}`}
+            />
+            {searching ? "ACTIVE" : "IDLE"}
+          </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className={`w-3.5 h-3.5 transition-transform ${collapsed ? "" : "rotate-180"}`}
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
         </div>
-        <div>{searching ? "STATUS: ACTIVE" : "STATUS: IDLE"}</div>
-      </div>
+      </button>
 
-      <div className="flex-1 bg-zinc-950/80 p-4 overflow-y-auto font-mono text-xs space-y-4">
-        {logs.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-zinc-600 text-center p-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-10 h-10 mb-2 opacity-40 text-purple-400"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"
-              />
-            </svg>
-            <p>Awaiting Scout query parameters...</p>
-            <p className="text-[10px] mt-1 text-zinc-700">
-              Logs and thoughts will stream here live
-            </p>
-          </div>
-        ) : (
-          logs.map((log) => <LogEntry key={log.id} log={log} />)
-        )}
-        <div ref={consoleEndRef} />
-      </div>
+      {!collapsed && (
+        <div className="max-h-80 bg-[var(--card)] p-4 overflow-y-auto font-mono text-xs space-y-3">
+          {logs.map((log) => (
+            <LogEntry key={log.id} log={log} />
+          ))}
+          <div ref={consoleEndRef} />
+        </div>
+      )}
     </div>
   );
 }

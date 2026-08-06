@@ -14,39 +14,35 @@ export function DashboardHeader({
   brand: ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-40 w-full glass-panel border-b border-zinc-800/80 px-6 py-4 flex items-center justify-between">
+    <header className="sticky top-0 z-40 w-full glass-panel border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
       {brand}
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3">
         {status && (
-          <div className="hidden md:flex items-center space-x-4 text-xs">
-            <div className="flex items-center space-x-2 bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-800">
-              <span className="text-zinc-500">Database:</span>
-              <span className="flex items-center">
-                <span
-                  className={`w-2 h-2 rounded-full mr-2 ${status.database.connected_to_mongodb ? "bg-emerald-500" : "bg-amber-500"}`}
-                />
-                {status.database.connected_to_mongodb
-                  ? "MongoDB (Active)"
-                  : "JSON Fallback"}
+          <div className="hidden md:flex items-center divide-x divide-[var(--border)] bg-[var(--secondary)] rounded-lg border border-[var(--border)] text-xs overflow-hidden">
+            <div className="flex items-center gap-2 px-3.5 py-2">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${status.database.connected_to_mongodb ? "bg-emerald-600" : "bg-amber-600"}`}
+              />
+              <span className="text-[var(--muted-foreground)]">Database</span>
+              <span className="text-[var(--foreground)] font-medium">
+                {status.database.connected_to_mongodb ? "MongoDB" : "JSON Fallback"}
               </span>
             </div>
 
-            <div className="flex items-center space-x-2 bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-800">
-              <span className="text-zinc-500">Gemini:</span>
-              <span className="flex items-center">
-                <span
-                  className={`w-2 h-2 rounded-full mr-2 ${status.config.gemini_api_key_configured ? "bg-emerald-500" : "bg-rose-500"}`}
-                />
-                {status.config.gemini_api_key_configured
-                  ? "Connected"
-                  : "Key Missing"}
+            <div className="flex items-center gap-2 px-3.5 py-2">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${status.config.openrouter_api_key_configured ? "bg-emerald-600" : "bg-[var(--destructive)]"}`}
+              />
+              <span className="text-[var(--muted-foreground)]">OpenRouter</span>
+              <span className="text-[var(--foreground)] font-medium">
+                {status.config.openrouter_api_key_configured ? "Connected" : "Key Missing"}
               </span>
             </div>
 
-            <div className="flex items-center space-x-2 bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-800">
-              <span className="text-zinc-500">Search:</span>
-              <span className="text-purple-300 font-semibold uppercase">
+            <div className="flex items-center gap-2 px-3.5 py-2">
+              <span className="text-[var(--muted-foreground)]">Search</span>
+              <span className="text-[var(--primary)] font-semibold uppercase tracking-wide">
                 {status.config.search_provider}
               </span>
             </div>
@@ -56,7 +52,7 @@ export function DashboardHeader({
         <button
           onClick={onOpenSettings}
           aria-label="Open agent settings"
-          className="p-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-xl transition duration-200 border border-zinc-700"
+          className="p-2.5 bg-[var(--secondary)] hover:bg-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] rounded-lg transition duration-150 border border-[var(--border)] cursor-pointer"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

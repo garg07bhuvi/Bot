@@ -31,11 +31,11 @@ export interface AgentLog {
 export interface BackendStatus {
   database: {
     connected_to_mongodb: boolean;
-    storage_type: string;
+    storage_type: "mongodb" | "file";
     file_path: string | null;
   };
   config: {
-    gemini_api_key_configured: boolean;
+    openrouter_api_key_configured: boolean;
     search_provider: string;
     google_places_api_key_configured: boolean;
     serper_api_key_configured: boolean;
@@ -43,7 +43,7 @@ export interface BackendStatus {
 }
 
 export interface SettingsForm {
-  gemini_api_key: string;
+  openrouter_api_key: string;
   mongodb_uri: string;
   search_provider: string;
   google_places_api_key: string;

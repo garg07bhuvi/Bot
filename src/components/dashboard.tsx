@@ -21,10 +21,8 @@ function ignoreAbort(context: string) {
 /** API keys are never echoed back into the form — blanks mean "keep current". */
 function settingsFormFor(status: BackendStatus): SettingsForm {
   return {
-    gemini_api_key: "",
-    mongodb_uri: status.database.connected_to_mongodb
-      ? ""
-      : "mongodb://localhost:27017",
+    openrouter_api_key: "",
+    mongodb_uri: status.database.connected_to_mongodb ? "" : "mongodb://localhost:27017",
     search_provider: status.config.search_provider,
     google_places_api_key: "",
     serper_api_key: "",
@@ -87,28 +85,26 @@ export function Dashboard({ brand }: { brand: ReactNode }) {
     start(query);
   };
 
-  return (
-    <div className="relative min-h-screen bg-[#09090b] text-[#fafafa] flex flex-col antialiased">
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-900/15 rounded-full filter blur-[100px] animate-pulse-slow pointer-events-none" />
-      <div className="absolute bottom-[20%] right-[-10%] w-[600px] h-[600px] bg-indigo-900/10 rounded-full filter blur-[120px] animate-pulse-slow pointer-events-none" />
+  const showConsole = searching || logs.length > 0;
 
+  return (
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col antialiased">
       <DashboardHeader
         status={status}
         onOpenSettings={() => setShowSettings(true)}
         brand={brand}
       />
 
-      <main className="flex-1 max-w-[1600px] w-full mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
-        <section className="lg:col-span-5 flex flex-col space-y-6 max-h-[calc(100vh-130px)]">
-          <ScoutForm
-            query={query}
-            onQueryChange={setQuery}
-            searching={searching}
-            onStart={handleStart}
-            onStop={stop}
-          />
-          <AgentConsole logs={logs} searching={searching} />
-        </section>
+      <main className="flex-1 max-w-[1400px] w-full mx-auto px-6 py-8 flex flex-col gap-5">
+        <ScoutForm
+          query={query}
+          onQueryChange={setQuery}
+          searching={searching}
+          onStart={handleStart}
+          onStop={stop}
+        />
+
+        {showConsole && <AgentConsole logs={logs} searching={searching} />}
 
         <BusinessGrid businesses={businesses} />
       </main>
@@ -121,16 +117,14 @@ export function Dashboard({ brand }: { brand: ReactNode }) {
         />
       )}
 
-      <footer className="md:hidden glass-panel border-t border-zinc-850 py-2.5 px-4 text-[10px] text-zinc-500 flex items-center justify-between mt-auto">
+      <footer className="md:hidden glass-panel border-t border-[var(--border)] py-2.5 px-4 text-[11px] text-[var(--muted-foreground)] flex items-center justify-between mt-auto">
         <span>Aura Business Scout 1.0</span>
         {status && (
           <span className="flex items-center">
             <span
-              className={`w-1.5 h-1.5 rounded-full mr-1.5 ${status.database.connected_to_mongodb ? "bg-emerald-500" : "bg-amber-500"}`}
+              className={`w-1.5 h-1.5 rounded-full mr-1.5 ${status.database.connected_to_mongodb ? "bg-emerald-600" : "bg-amber-600"}`}
             />
-            {status.database.connected_to_mongodb
-              ? "MongoDB Online"
-              : "JSON Fallback"}
+            {status.database.connected_to_mongodb ? "MongoDB Online" : "JSON Fallback"}
           </span>
         )}
       </footer>

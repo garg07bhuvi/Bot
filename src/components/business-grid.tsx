@@ -42,14 +42,14 @@ export function BusinessGrid({ businesses }: { businesses: Business[] }) {
   }, [businesses, filterQuery, filterCategory, sortBy]);
 
   return (
-    <section className="lg:col-span-7 flex flex-col space-y-4 max-h-[calc(100vh-130px)]">
-      <div className="glass-panel p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex-1">
-          <h2 className="text-sm font-semibold text-zinc-300 mb-1">
-            Database Records ({filteredBusinesses.length})
+    <section className="flex flex-col gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-display text-[var(--foreground)]">
+            Results ({filteredBusinesses.length})
           </h2>
-          <p className="text-xs text-zinc-500">
-            Explore businesses stored in the search database
+          <p className="text-sm text-[var(--muted-foreground)]">
+            Businesses found by the scout agent
           </p>
         </div>
 
@@ -58,7 +58,7 @@ export function BusinessGrid({ businesses }: { businesses: Business[] }) {
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
             aria-label="Filter by category"
-            className="bg-zinc-900 border border-zinc-800 text-xs rounded-xl px-3 py-2 text-zinc-300 focus:outline-none focus:border-purple-500 cursor-pointer"
+            className="bg-[var(--card)] border border-[var(--border)] text-xs rounded-lg px-3 py-2 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] cursor-pointer"
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
@@ -71,7 +71,7 @@ export function BusinessGrid({ businesses }: { businesses: Business[] }) {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortBy)}
             aria-label="Sort records"
-            className="bg-zinc-900 border border-zinc-800 text-xs rounded-xl px-3 py-2 text-zinc-300 focus:outline-none focus:border-purple-500 cursor-pointer"
+            className="bg-[var(--card)] border border-[var(--border)] text-xs rounded-lg px-3 py-2 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] cursor-pointer"
           >
             <option value="newest">Newest Scraped</option>
             <option value="rating">Highest Rating</option>
@@ -83,9 +83,9 @@ export function BusinessGrid({ businesses }: { businesses: Business[] }) {
               type="text"
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              placeholder="Filter records..."
+              placeholder="Filter results..."
               aria-label="Filter records by text"
-              className="bg-zinc-900 border border-zinc-800 text-xs rounded-xl pl-8 pr-3 py-2 text-zinc-300 focus:outline-none focus:border-purple-500 w-36 md:w-44"
+              className="bg-[var(--card)] border border-[var(--border)] text-xs rounded-lg pl-8 pr-3 py-2 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] w-36 md:w-44"
             />
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +93,7 @@ export function BusinessGrid({ businesses }: { businesses: Business[] }) {
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+              className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] pointer-events-none"
               aria-hidden="true"
             >
               <path
@@ -106,40 +106,37 @@ export function BusinessGrid({ businesses }: { businesses: Business[] }) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-1">
-        {filteredBusinesses.length === 0 ? (
-          <div className="h-64 glass-panel rounded-2xl flex flex-col items-center justify-center text-zinc-500 text-center p-6 border-dashed border-zinc-800">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-12 h-12 mb-3 text-zinc-600 opacity-60"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
-              />
-            </svg>
-            <h3 className="text-sm font-semibold text-zinc-300 mb-1">
-              No Business Records Found
-            </h3>
-            <p className="text-xs text-zinc-500">
-              Run a scout query using the agent console to populate records, or
-              adjust filters.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-6">
-            {filteredBusinesses.map((biz) => (
-              <BusinessCard key={biz.place_id} business={biz} />
-            ))}
-          </div>
-        )}
-      </div>
+      {filteredBusinesses.length === 0 ? (
+        <div className="min-h-64 glass-panel rounded-xl flex flex-col items-center justify-center text-center p-6 border-dashed">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-12 h-12 mb-3 text-[var(--primary)] opacity-50"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+            />
+          </svg>
+          <h3 className="text-sm font-semibold text-[var(--foreground)] mb-1">
+            No results yet
+          </h3>
+          <p className="text-xs text-[var(--muted-foreground)]">
+            Run a scout query above to populate results, or adjust filters.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredBusinesses.map((biz) => (
+            <BusinessCard key={biz.place_id} business={biz} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

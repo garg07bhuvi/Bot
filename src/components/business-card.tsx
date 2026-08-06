@@ -7,7 +7,7 @@ const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500";
 
 function isScraped(placeId: string) {
-  return placeId.startsWith("ddg_") || placeId.startsWith("bing_");
+  return placeId.startsWith("ddg_") || placeId.startsWith("bing_") || placeId.startsWith("osm_");
 }
 
 export function BusinessCard({ business }: { business: Business }) {
@@ -16,8 +16,8 @@ export function BusinessCard({ business }: { business: Business }) {
   );
 
   return (
-    <div className="glass-card rounded-2xl overflow-hidden flex flex-col h-full border border-zinc-800/40 relative">
-      <div className="h-36 relative bg-zinc-900 flex items-center justify-center overflow-hidden">
+    <div className="glass-card rounded-xl overflow-hidden flex flex-col h-full relative">
+      <div className="h-36 relative bg-[var(--secondary)] flex items-center justify-center overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageSrc}
@@ -26,41 +26,41 @@ export function BusinessCard({ business }: { business: Business }) {
           onError={() => setImageSrc(FALLBACK_IMAGE)}
         />
 
-        <span className="absolute top-3 left-3 bg-zinc-950/85 backdrop-blur border border-zinc-800 text-[10px] font-medium text-purple-300 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+        <span className="absolute top-3 left-3 bg-[var(--card)]/90 border border-[var(--border)] text-[10px] font-medium text-[var(--primary)] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
           {business.category}
         </span>
 
-        <span className="absolute top-3 right-3 bg-zinc-950/85 backdrop-blur border border-zinc-800 text-[9px] text-zinc-400 px-2 py-0.5 rounded">
+        <span className="absolute top-3 right-3 bg-[var(--card)]/90 border border-[var(--border)] text-[9px] text-[var(--muted-foreground)] px-2 py-0.5 rounded">
           {isScraped(business.place_id) ? "FREE SCRAPE" : "API RESULT"}
         </span>
       </div>
 
       <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
         <div className="space-y-1.5">
-          <h3 className="font-bold text-white text-sm line-clamp-1 hover:text-purple-300 transition">
+          <h3 className="font-semibold text-[var(--foreground)] text-sm line-clamp-1 hover:text-[var(--primary)] transition">
             {business.name}
           </h3>
 
           {business.rating !== null && (
             <div className="flex items-center space-x-1.5 text-xs">
-              <span className="text-amber-400">★</span>
-              <span className="text-zinc-200 font-semibold">
+              <span className="text-amber-600">★</span>
+              <span className="text-[var(--foreground)] font-semibold">
                 {business.rating.toFixed(1)}
               </span>
-              <span className="text-zinc-500">
+              <span className="text-[var(--muted-foreground)]">
                 ({business.review_count} reviews)
               </span>
             </div>
           )}
 
-          <p className="text-xs text-zinc-400 flex items-start space-x-1">
+          <p className="text-xs text-[var(--muted-foreground)] flex items-start space-x-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-3.5 h-3.5 mt-0.5 text-purple-500 shrink-0"
+              className="w-3.5 h-3.5 mt-0.5 text-[var(--primary)] shrink-0"
               aria-hidden="true"
             >
               <path
@@ -77,32 +77,32 @@ export function BusinessCard({ business }: { business: Business }) {
             <span className="line-clamp-1">{business.address}</span>
           </p>
 
-          <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed italic">
+          <p className="text-[11px] text-[var(--muted-foreground)] line-clamp-2 leading-relaxed italic">
             &quot;{business.short_description || "No description retrieved."}
             &quot;
           </p>
         </div>
 
-        <div className="pt-2 border-t border-zinc-800/40 flex flex-col space-y-2 text-xs">
+        <div className="pt-2 border-t border-[var(--border)] flex flex-col space-y-2 text-xs">
           <div className="flex items-center justify-between text-[11px]">
-            <span className="text-zinc-500">Phone:</span>
-            <span className="text-zinc-300 font-medium">
+            <span className="text-[var(--muted-foreground)]">Phone:</span>
+            <span className="text-[var(--foreground)] font-medium">
               {business.phone_number || "Not Available"}
             </span>
           </div>
           <div className="flex items-center justify-between text-[11px]">
-            <span className="text-zinc-500">Website:</span>
+            <span className="text-[var(--muted-foreground)]">Website:</span>
             {business.website ? (
               <a
                 href={business.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-purple-400 hover:underline truncate max-w-[150px]"
+                className="text-[var(--primary)] hover:underline truncate max-w-[150px]"
               >
                 Visit Site
               </a>
             ) : (
-              <span className="text-zinc-600">Not Available</span>
+              <span className="text-[var(--muted-foreground)]/60">Not Available</span>
             )}
           </div>
 
@@ -110,7 +110,7 @@ export function BusinessCard({ business }: { business: Business }) {
             href={business.google_maps_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-center py-1.5 rounded-lg text-zinc-300 hover:text-white transition duration-200 flex items-center justify-center space-x-1.5 text-[11px]"
+            className="mt-1 w-full bg-[var(--secondary)] hover:bg-[var(--border)] border border-[var(--border)] text-center py-1.5 rounded-lg text-[var(--foreground)] transition duration-200 flex items-center justify-center space-x-1.5 text-[11px]"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

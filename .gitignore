@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# local JSON store (businesses.json, settings.json)
+/data
+
 # debug
 npm-debug.log*
 yarn-debug.log*

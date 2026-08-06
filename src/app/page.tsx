@@ -11,7 +11,7 @@ export default function Page() {
 function Brand() {
   return (
     <div className="flex items-center space-x-3">
-      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+      <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -29,13 +29,13 @@ function Brand() {
         </svg>
       </div>
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-white flex items-center">
+        <h1 className="text-xl font-display tracking-tight text-[var(--foreground)] flex items-center">
           AURA
-          <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded ml-2 border border-purple-500/30">
+          <span className="text-xs font-sans font-medium bg-[var(--primary)]/10 text-[var(--primary)] px-2 py-0.5 rounded ml-2 border border-[var(--primary)]/25">
             Scout Agent
           </span>
         </h1>
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-[var(--muted-foreground)]">
           Autonomous business extraction agent
         </p>
       </div>
