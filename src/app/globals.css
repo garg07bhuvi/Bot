@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-calistoga), Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+:root {
+  --background: #f6f1e9;
+  --foreground: #2a2118;
+  --card: #fffcf7;
+  --card-foreground: #2a2118;
+  --popover: #fffcf7;
+  --popover-foreground: #2a2118;
+  --primary: #bf5b3f;
+  --primary-foreground: #ffffff;
+  --secondary: #ece3d5;
+  --secondary-foreground: #2a2118;
+  --muted: #ece3d5;
+  --muted-foreground: #83766a;
+  --accent: #bf5b3f;
+  --accent-foreground: #ffffff;
+  --destructive: #ab4130;
+  --destructive-foreground: #ffffff;
+  --border: #e4d9c8;
+  --input: #e4d9c8;
+  --ring: #bf5b3f;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(228, 217, 200, 0.4);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(191, 91, 63, 0.35);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(191, 91, 63, 0.55);
+}
+
+/* Flat panels — paper surface + hairline border, soft shadow instead of glow */
+.glass-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.glass-card:hover {
+  border-color: #d8a08c;
+  box-shadow: 0 4px 16px -4px rgba(191, 91, 63, 0.15);
+}
