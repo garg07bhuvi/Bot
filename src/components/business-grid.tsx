@@ -16,7 +16,17 @@ function sortBusinesses(a: Business, b: Business, sortBy: SortBy) {
  * Filter and sort state lives here rather than in the dashboard, so typing in
  * the filter box doesn't re-render the agent console or the SSE-driven state.
  */
-export function BusinessGrid({ businesses }: { businesses: Business[] }) {
+export function BusinessGrid({
+  businesses,
+  savedBusinesses,
+  onSaveBusiness,
+  showToast,
+}: {
+  businesses: Business[];
+  savedBusinesses: Business[];
+  onSaveBusiness: (business: Business) => void;
+  showToast: (message: string, type?: "success" | "info" | "error") => void;
+}) {
   const [filterQuery, setFilterQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
   const [sortBy, setSortBy] = useState<SortBy>("newest");
@@ -132,9 +142,18 @@ export function BusinessGrid({ businesses }: { businesses: Business[] }) {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredBusinesses.map((biz) => (
-            <BusinessCard key={biz.place_id} business={biz} />
-          ))}
+          {filteredBusinesses.map((biz) => {
+            const isSaved = savedBusinesses.some((b) => b.place_id === biz.place_id);
+            return (
+              <BusinessCard
+                key={biz.place_id}
+                business={biz}
+                isSaved={isSaved}
+                onSave={onSaveBusiness}
+                showToast={showToast}
+              />
+            );
+          })}
         </div>
       )}
     </section>

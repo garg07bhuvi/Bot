@@ -15,6 +15,11 @@ export interface Business {
   short_description: string;
   queried_at?: string;
   query?: string;
+  redesign_status?: "pending" | "in_progress" | "done" | "failed";
+  redesign_prompt?: string;
+  redesign_image_urls?: string[];
+  stitch_project_id?: string;
+  redesigned_at?: string;
 }
 
 export interface AgentLog {

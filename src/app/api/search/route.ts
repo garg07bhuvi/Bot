@@ -41,8 +41,31 @@ export async function GET(request: NextRequest) {
         const businesses = await provider(query, plan, settings);
 
         for (const business of businesses) {
-          await saveBusiness(business);
-          send({ type: "business_saved", message: `Saved ${business.name}`, business });
+          const hasWebsite = !!business.website?.trim();
+          const hasPhone = !!business.phone_number?.trim();
+          const hasName = !!business.name?.trim();
+          const hasLocation =
+            business.latitude !== null &&
+            business.longitude !== null &&
+            business.latitude !== 0 &&
+            business.longitude !== 0;
+
+          const shouldAutoSave = hasWebsite && hasPhone && hasName && hasLocation;
+
+          if (shouldAutoSave) {
+            await saveBusiness(business);
+            send({
+              type: "business_saved",
+              message: `Auto-saved ${business.name} (has website, phone, location)`,
+              business: { ...business, autoSaved: true },
+            });
+          } else {
+            send({
+              type: "business_saved",
+              message: `Scouted ${business.name}`,
+              business,
+            });
+          }
         }
 
         send({ type: "complete", message: `Found ${businesses.length} businesses.` });

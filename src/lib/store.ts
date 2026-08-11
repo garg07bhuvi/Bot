@@ -101,6 +101,37 @@ export async function saveBusiness(business: Business): Promise<void> {
   await fileSaveBusiness(business);
 }
 
+export async function getBusinessesWithWebsite(): Promise<Business[]> {
+  const businesses = await getBusinesses();
+  return businesses.filter((b) => b.website !== null && b.website !== "");
+}
+
+export async function updateRedesignResult(
+  place_id: string,
+  update: Partial<Pick<Business, "redesign_status" | "redesign_prompt" | "redesign_image_urls" | "stitch_project_id" | "redesigned_at">>
+): Promise<void> {
+  const settings = await getSettings();
+  if (settings.mongodb_uri) {
+    try {
+      const db = await getDb(settings.mongodb_uri);
+      await db
+        .collection("businesses")
+        .updateOne({ place_id }, { $set: update });
+      return;
+    } catch (err) {
+      console.error("MongoDB unreachable, using file storage:", err);
+    }
+  }
+
+  // JSON Fallback
+  const businesses = await fileGetBusinesses();
+  const index = businesses.findIndex((b) => b.place_id === place_id);
+  if (index !== -1) {
+    businesses[index] = { ...businesses[index], ...update };
+    await writeJson(BUSINESSES_FILE, businesses);
+  }
+}
+
 const DEFAULT_SETTINGS: SettingsForm = {
   openrouter_api_key: "",
   mongodb_uri: "",
