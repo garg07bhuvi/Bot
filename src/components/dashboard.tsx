@@ -26,6 +26,8 @@ function settingsFormFor(status: BackendStatus): SettingsForm {
     search_provider: status.config.search_provider,
     google_places_api_key: "",
     serper_api_key: "",
+    whatsapp_access_token: "",
+    whatsapp_phone_number_id: "",
   };
 }
 

@@ -34,6 +34,12 @@ async function fileSaveBusiness(business: Business): Promise<void> {
   await writeJson(BUSINESSES_FILE, [business, ...businesses]);
 }
 
+async function fileUpdateBusiness(place_id: string, patch: Partial<Business>): Promise<void> {
+  const businesses = await fileGetBusinesses();
+  const next = businesses.map((b) => (b.place_id === place_id ? { ...b, ...patch } : b));
+  await writeJson(BUSINESSES_FILE, next);
+}
+
 // Cached across requests (and hot reloads) so we don't open a new connection per call.
 let cachedClient: MongoClient | null = null;
 let cachedUri: string | null = null;
@@ -110,26 +116,30 @@ export async function updateRedesignResult(
   place_id: string,
   update: Partial<Pick<Business, "redesign_status" | "redesign_prompt" | "redesign_image_urls" | "stitch_project_id" | "redesigned_at">>
 ): Promise<void> {
+  await updateBusiness(place_id, update);
+}
+
+/** Partial update by place_id — used by the redesign and WhatsApp-delivery steps. */
+export async function updateBusiness(place_id: string, patch: Partial<Business>): Promise<void> {
   const settings = await getSettings();
   if (settings.mongodb_uri) {
     try {
       const db = await getDb(settings.mongodb_uri);
-      await db
-        .collection("businesses")
-        .updateOne({ place_id }, { $set: update });
+      await db.collection("businesses").updateOne({ place_id }, { $set: patch });
       return;
     } catch (err) {
       console.error("MongoDB unreachable, using file storage:", err);
     }
   }
+  await fileUpdateBusiness(place_id, patch);
+}
 
-  // JSON Fallback
-  const businesses = await fileGetBusinesses();
-  const index = businesses.findIndex((b) => b.place_id === place_id);
-  if (index !== -1) {
-    businesses[index] = { ...businesses[index], ...update };
-    await writeJson(BUSINESSES_FILE, businesses);
-  }
+/** Step 3 candidates: redesign finished, not yet successfully messaged. */
+export async function getBusinessesReadyForWhatsapp(): Promise<Business[]> {
+  const businesses = await getBusinesses();
+  return businesses.filter(
+    (b) => b.redesign_status === "done" && b.whatsapp_status !== "sent" && b.phone_number
+  );
 }
 
 const DEFAULT_SETTINGS: SettingsForm = {
@@ -138,6 +148,8 @@ const DEFAULT_SETTINGS: SettingsForm = {
   search_provider: "google",
   google_places_api_key: "",
   serper_api_key: "",
+  whatsapp_access_token: "",
+  whatsapp_phone_number_id: "",
 };
 
 export async function getSettings(): Promise<SettingsForm> {
@@ -148,6 +160,9 @@ export async function getSettings(): Promise<SettingsForm> {
     openrouter_api_key: stored.openrouter_api_key || process.env.OPENROUTER_API_KEY || "",
     mongodb_uri: stored.mongodb_uri || process.env.MONGODB_URI || "",
     google_places_api_key: stored.google_places_api_key || process.env.GOOGLE_PLACES_API_KEY || "",
+    whatsapp_access_token: stored.whatsapp_access_token || process.env.WHATSAPP_ACCESS_TOKEN || "",
+    whatsapp_phone_number_id:
+      stored.whatsapp_phone_number_id || process.env.WHATSAPP_PHONE_NUMBER_ID || "",
   };
 }
 

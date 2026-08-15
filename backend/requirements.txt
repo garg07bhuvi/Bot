@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-pymongo
-google-genai
-python-dotenv
-pydantic
-requests
-beautifulsoup4
-duckduckgo_search

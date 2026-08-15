@@ -40,6 +40,9 @@ export async function GET(request: NextRequest) {
           SEARCH_PROVIDERS[settings.search_provider] ?? SEARCH_PROVIDERS[DEFAULT_SEARCH_PROVIDER];
         const businesses = await provider(query, plan, settings);
 
+        // Redesign + WhatsApp delivery need name, phone, website, and location —
+        // a business missing any of those can't complete the pipeline.
+        let savedCount = 0;
         for (const business of businesses) {
           const hasWebsite = !!business.website?.trim();
           const hasPhone = !!business.phone_number?.trim();
@@ -53,6 +56,7 @@ export async function GET(request: NextRequest) {
           const shouldAutoSave = hasWebsite && hasPhone && hasName && hasLocation;
 
           if (shouldAutoSave) {
+            savedCount++;
             await saveBusiness(business);
             send({
               type: "business_saved",
@@ -68,7 +72,10 @@ export async function GET(request: NextRequest) {
           }
         }
 
-        send({ type: "complete", message: `Found ${businesses.length} businesses.` });
+        send({
+          type: "complete",
+          message: `Found ${businesses.length} businesses, saved ${savedCount} with name + phone + website + location.`,
+        });
       } catch (err) {
         send({ type: "error", message: err instanceof Error ? err.message : "Unknown error" });
       } finally {
