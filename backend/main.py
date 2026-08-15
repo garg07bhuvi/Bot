@@ -3,6 +3,7 @@ import sys
 import json
 import logging
 import asyncio
+import requests
 from dotenv import load_dotenv
 
 # Dynamically add the backend directory to python path for uvicorn
@@ -39,6 +40,93 @@ class SettingsUpdate(BaseModel):
     search_provider: str = None
     google_places_api_key: str = None
     serper_api_key: str = None
+
+# --- WhatsApp / LeapCrew Integration Helpers ---
+
+def send_whatsapp_reply(to_phone: str, reply_text: str):
+    """
+    Sends a WhatsApp message payload using LeapCrew's API endpoints and API Key.
+    """
+    leapcrew_url = os.environ.get("LEAPCREW_API_URL", "http://localhost:3000")
+    api_key = os.environ.get("LEAPCREW_API_KEY")
+    
+    url = f"{leapcrew_url.rstrip('/')}/api/v1/messages"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "to": to_phone,
+        "text": reply_text
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code >= 400:
+            logger.error(f"Error sending WhatsApp: {response.status_code} - {response.text}")
+        else:
+            logger.info(f"Message sent successfully to WhatsApp via LeapCrew ({to_phone})")
+    except Exception as e:
+        logger.error(f"Failed to connect to LeapCrew API: {e}")
+
+async def run_agent_and_reply_whatsapp(to_phone: str, query: str):
+    """
+    Consumes the generator of the BusinessAgent to run the search agent loop,
+    saving qualifying businesses and replying with a summary over WhatsApp.
+    """
+    logger.info(f"Triggering background search for WhatsApp query '{query}' from {to_phone}")
+    
+    # 1. Send status update to WhatsApp
+    send_whatsapp_reply(
+        to_phone, 
+        f"🔍 Launching AI Business Scout for: '{query}'\nProcessing search... This will take a moment."
+    )
+    
+    agent = BusinessAgent(query)
+    
+    try:
+        # Run search loop generator completely
+        for step in agent.run():
+            await asyncio.sleep(0.01) # Yield execution to FastAPI event loop
+            
+        saved = agent.saved_businesses
+        
+        # 2. Format search results summary
+        if not saved:
+            send_whatsapp_reply(
+                to_phone, 
+                f"🏁 Scouting Complete for: '{query}'\nNo new unique businesses matching the criteria were found."
+            )
+            return
+            
+        lines = [
+            f"🎉 *Scout Complete for: '{query}'*",
+            f"Discovered and saved {len(saved)} businesses:",
+            ""
+        ]
+        
+        for idx, biz in enumerate(saved):
+            name = biz.get("name", "Unknown")
+            cat = biz.get("category", "Business")
+            rating = f"⭐ {biz.get('rating')}" if biz.get("rating") else "Unrated"
+            phone = biz.get("phone_number", "No Phone")
+            website = biz.get("website")
+            
+            item_desc = f"{idx + 1}. *{name}* ({cat})\n   ↳ {rating} | {phone}"
+            if website:
+                item_desc += f"\n   ↳ Website: {website}"
+            lines.append(item_desc)
+            
+        reply_message = "\n".join(lines)
+        
+        # 3. Send final summary to user
+        send_whatsapp_reply(to_phone, reply_message)
+        
+    except Exception as e:
+        logger.error(f"Exception during WhatsApp scout run: {e}")
+        send_whatsapp_reply(to_phone, f"❌ Failed to complete scout search for: '{query}'\nError: {str(e)}")
+
+# --- End API Webhook Integrations ---
 
 @app.get("/api/status")
 def get_status():
@@ -136,6 +224,39 @@ async def start_search(query: str = Query(..., description="Business search quer
             await asyncio.sleep(0.05)
             
     return StreamingResponse(sse_generator(), media_type="text/event-stream")
+
+# --- Webhook Endpoint for LeapCrew ---
+@app.post("/api/webhook/whatsapp")
+async def whatsapp_webhook(payload: dict):
+    """
+    Receives incoming POST webhooks from LeapCrew containing WhatsApp queries.
+    Triggers the background search and automatic WhatsApp text response.
+    """
+    logger.info(f"Received LeapCrew webhook event: {json.dumps(payload)}")
+    
+    # Try to extract the user's phone number from varying fields (sender, from, from_phone)
+    sender = (
+        payload.get("sender") or 
+        payload.get("from") or 
+        payload.get("from_phone") or 
+        payload.get("phone") or
+        payload.get("to")
+    )
+    
+    # Try to extract message text (supporting nested message bodies or direct fields)
+    text = ""
+    if "message" in payload and isinstance(payload["message"], dict):
+        text = payload["message"].get("text", "")
+    else:
+        text = payload.get("text") or payload.get("message") or payload.get("body", "")
+        
+    if not sender or not text.strip():
+        logger.warning("Rejected LeapCrew payload: Missing sender phone or query text.")
+        return {"status": "ignored", "reason": "empty body or missing sender phone"}
+        
+    # Trigger background search and text reply
+    asyncio.create_task(run_agent_and_reply_whatsapp(str(sender), text.strip()))
+    return {"status": "processing", "message": "Search job scheduled in background."}
 
 if __name__ == "__main__":
     import uvicorn
