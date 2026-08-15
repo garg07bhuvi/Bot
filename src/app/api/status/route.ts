@@ -10,7 +10,7 @@ export async function GET() {
       search_provider: settings.search_provider,
       google_places_api_key_configured: Boolean(settings.google_places_api_key),
       serper_api_key_configured: Boolean(settings.serper_api_key),
-      whatsapp_configured: Boolean(settings.whatsapp_access_token && settings.whatsapp_phone_number_id),
+      whatsapp_configured: Boolean(settings.leapcrew_api_key),
     },
   };
   return Response.json(status);

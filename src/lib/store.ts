@@ -148,8 +148,7 @@ const DEFAULT_SETTINGS: SettingsForm = {
   search_provider: "google",
   google_places_api_key: "",
   serper_api_key: "",
-  whatsapp_access_token: "",
-  whatsapp_phone_number_id: "",
+  leapcrew_api_key: "",
 };
 
 export async function getSettings(): Promise<SettingsForm> {
@@ -160,9 +159,7 @@ export async function getSettings(): Promise<SettingsForm> {
     openrouter_api_key: stored.openrouter_api_key || process.env.OPENROUTER_API_KEY || "",
     mongodb_uri: stored.mongodb_uri || process.env.MONGODB_URI || "",
     google_places_api_key: stored.google_places_api_key || process.env.GOOGLE_PLACES_API_KEY || "",
-    whatsapp_access_token: stored.whatsapp_access_token || process.env.WHATSAPP_ACCESS_TOKEN || "",
-    whatsapp_phone_number_id:
-      stored.whatsapp_phone_number_id || process.env.WHATSAPP_PHONE_NUMBER_ID || "",
+    leapcrew_api_key: stored.leapcrew_api_key || process.env.LEAPCREW_API_KEY || "",
   };
 }
 

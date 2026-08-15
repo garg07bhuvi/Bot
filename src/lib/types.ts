@@ -25,7 +25,7 @@ export interface Business {
 
   // Step 3 — WhatsApp delivery
   whatsapp_status?: "pending" | "sent" | "failed";
-  whatsapp_message_id?: string;
+  whatsapp_message_ids?: string[];
   whatsapp_error?: string;
   whatsapp_sent_at?: string;
 }
@@ -62,8 +62,7 @@ export interface SettingsForm {
   search_provider: string;
   google_places_api_key: string;
   serper_api_key: string;
-  whatsapp_access_token: string;
-  whatsapp_phone_number_id: string;
+  leapcrew_api_key: string;
 }
 
 export type SortBy = "newest" | "rating" | "reviews";
